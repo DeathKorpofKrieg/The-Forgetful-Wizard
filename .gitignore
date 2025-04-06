@@ -1,0 +1,22 @@
+# User-specific files
+*.user
+*.userprefs
+*.csproj
+*.sln
+*.suo
+*.pidb
+*.booproj
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# macOS
+.DS_Store
+
+# Unity-specific
+Library/
+Temp/
+Obj/
+Build/
+BuildPlayer/
