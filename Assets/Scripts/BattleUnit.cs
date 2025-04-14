@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BattleUnit : MonoBehaviour
 {
@@ -9,40 +10,70 @@ public class BattleUnit : MonoBehaviour
     private int armorTurns = 0;
     private string lastUsedSpell;
 
+    public List<Spell> spellList;  // For AI use
+
     void Start()
     {
         currentHP = MaxHP;
         hpBar.SetHP(currentHP, MaxHP);
     }
 
+    public void SetSpellList(List<Spell> spells)
+    {
+        spellList = spells;
+    }
+
+    public float SimulateDamageTaken(float incomingDamage)
+    {
+        return incomingDamage * (1 - damageReduction);
+    }
+
     public void TakeDamage(float damage)
     {
-        // Apply damage reduction if any
-        float finalDamage = damage * (1 - damageReduction);
-
-        // Reduce HP
+        float finalDamage = SimulateDamageTaken(damage);
         currentHP -= finalDamage;
         if (currentHP < 0) currentHP = 0;
-
-        // Update UI
         hpBar.SetHP(currentHP, MaxHP);
 
-        // Decrease armor turns
         if (armorTurns > 0)
         {
             armorTurns--;
-            if (armorTurns == 0) damageReduction = 0; // Remove armor effect
+            if (armorTurns == 0) damageReduction = 0;
         }
     }
 
-    public void ApplySpellEffect(Spell spell)
+    public void ApplySpellEffect(Spell spell, BattleUnit source)
     {
         lastUsedSpell = spell.Name;
 
-        if (spell.Name == "Stone Armour")
+        if (this == source)
         {
-            damageReduction = 0.5f; // Reduce damage by 50%
-            armorTurns = 2; // Lasts for 2 turns
+            if (spell.Name == "Stone Armour")
+            {
+                damageReduction = 0.5f;
+                armorTurns = 2;
+            }
+
+            if (spell.Name == "Frostbite" & damageReduction == 0f)
+            {
+                damageReduction = 0.25f;
+                armorTurns = 1; 
+            }
+
+            if (spell.Name == "Frostbite" & damageReduction == 0.5f)
+            {
+                damageReduction = 0.62f;
+                armorTurns = 1;
+            }
+        }
+        
+        if (spell.Name == "Earthquake")
+        {
+            if (armorTurns > 0)
+            {
+                armorTurns = 0;
+                damageReduction = 0f;
+            }
         }
     }
 
